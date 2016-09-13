@@ -14,7 +14,7 @@ tags:
 
 从入口文件 `/src/index.js` 入手，顺序捋一遍，vue的大概结构如下：
 
-![vue-structure](./images/vue-structure.png)
+![vue-structure](/blog/images/vue-structure.png)
 
 vue的源码结构分为 `Instance` 和 `Global` 两大块，下面我们分别粗略的看看这两个部分
 
