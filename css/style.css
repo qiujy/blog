@@ -1113,9 +1113,10 @@ a.article-title:hover {
   font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
 }
 .article-entry code {
-  background: #fff;
+  background: #f4f4f4;
   text-shadow: 0 1px #fff;
   padding: 0 0.3em;
+  color: #e96900;
 }
 .article-entry pre code {
   background: none;
@@ -1224,7 +1225,7 @@ pre .html .doctype,
 pre .css .id,
 pre .css .class,
 pre .css .pseudo {
-  color: #f2777a;
+  color: #e96900;
 }
 pre .number,
 pre .preprocessor,

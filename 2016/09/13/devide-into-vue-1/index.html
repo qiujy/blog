@@ -3,17 +3,26 @@
 <head>
   <meta charset="utf-8">
   
-  <title>言川的博客</title>
+  <title>vue 源码解析一 | 言川的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="言川的博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="言川的博客">
-<meta property="og:url" content="https://lihongxun945.github.io/blog/index.html">
+  <meta name="description" content="最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰学而不思则罔，思而不学则殆，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。
+在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。
+这里我们以 v1.0.26 为基础开始看源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue 源码解析一">
+<meta property="og:url" content="https://lihongxun945.github.io/blog/2016/09/13/devide-into-vue-1/index.html">
 <meta property="og:site_name" content="言川的博客">
-<meta property="og:description" content="言川的博客">
+<meta property="og:description" content="最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰学而不思则罔，思而不学则殆，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。
+在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。
+这里我们以 v1.0.26 为基础开始看源">
+<meta property="og:image" content="https://lihongxun945.github.io/blog/./images/vue-structure.png">
+<meta property="og:updated_time" content="2016-09-13T07:19:03.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="言川的博客">
-<meta name="twitter:description" content="言川的博客">
+<meta name="twitter:title" content="vue 源码解析一">
+<meta name="twitter:description" content="最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰学而不思则罔，思而不学则殆，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。
+在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。
+这里我们以 v1.0.26 为基础开始看源">
+<meta name="twitter:image" content="https://lihongxun945.github.io/blog/./images/vue-structure.png">
   
     <link rel="alternate" href="/atom.xml" title="言川的博客" type="application/atom+xml">
   
@@ -62,9 +71,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-devide-into-vue-1" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-devide-into-vue-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2016/09/13/devide-into-vue-1/" class="article-date">
   <time datetime="2016-09-13T02:41:00.000Z" itemprop="datePublished">2016-09-13</time>
@@ -77,8 +84,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2016/09/13/devide-into-vue-1/">vue 源码解析一</a>
+    <h1 class="article-title" itemprop="name">
+      vue 源码解析一
     </h1>
   
 
@@ -134,60 +141,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-about-this-blog" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2016/08/05/about-this-blog/" class="article-date">
-  <time datetime="2016-08-05T09:40:19.000Z" itemprop="datePublished">2016-08-05</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2016/08/05/about-this-blog/">关于本博客</a>
-    </h1>
+    <a href="/blog/2016/08/05/about-this-blog/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Ancien</strong>
+      <div class="article-nav-title">关于本博客</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="关于本博客"><a href="#关于本博客" class="headerlink" title="关于本博客"></a>关于本博客</h1><p>在CSDN上断断续续写了5年博客，发表了上百篇原创文章，涉及了<em>前端，算法，Java，安卓，Linux</em> 等各种领域。<br>一直想切换到github上，近期发生了一些不愉快的事情，机缘巧合下也正好把博客搬家到github上。<br>至于为什么在github上写博客，而不是在CSDN等博客网站上写，大约主要是如下原因：</p>
-<ul>
-<li>本人是github重度用户，所有能放在github上基本都不愿意放在别处</li>
-<li>github 上用markdown写起来更方便</li>
-<li>独立博客更自由，可以自定义域名，可以自己设计页面</li>
-<li>以前的博客写的很杂，希望换一个地方专心写一些比较高质量的技术博客</li>
-</ul>
-<p>旧的博客地址: <a href="http://blog.csdn.net/lihongxun945?viewmode=contents" target="_blank" rel="external">http://blog.csdn.net/lihongxun945?viewmode=contents</a></p>
-<h1 id="关于作者-言川"><a href="#关于作者-言川" class="headerlink" title="关于作者@言川"></a>关于作者@言川</h1><p>前端工程师，开源爱好者。目前个人开源项目主要有：</p>
-<ul>
-<li>微信公众账号开发UI库 <a href="https://github.com/lihongxun945/jquery-weui" target="_blank" rel="external">jQuery WeUI</a></li>
-<li>正在开发的基于VUE的UI框架 <a href="https://github.com/lihongxun945/vum" target="_blank" rel="external">VUM</a></li>
-</ul>
-<p>另外还有一些公司的开源项目就不在这里列出。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://lihongxun945.github.io/blog/blog/2016/08/05/about-this-blog/" data-id="cirhk955f0001dx6ws1z7us68" class="article-share-link">Partager</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
 
 </section>
         
