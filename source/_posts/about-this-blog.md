@@ -15,7 +15,7 @@ tags:
 - 独立博客更自由，可以自定义域名，可以自己设计页面
 - 以前的博客写的很杂，希望换一个地方专心写一些比较高质量的技术博客
 
-此博客源码：[https://lihongxun945.github.io/blog/](https://lihongxun945.github.io/blog/)
+此博客源码：[https://github.com/lihongxun945/blog](https://github.com/lihongxun945/blog)
 旧的博客地址: [http://blog.csdn.net/lihongxun945?viewmode=contents](http://blog.csdn.net/lihongxun945?viewmode=contents)
 
 # 关于作者@言川
