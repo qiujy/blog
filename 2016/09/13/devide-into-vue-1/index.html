@@ -15,14 +15,14 @@
 <meta property="og:description" content="最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰学而不思则罔，思而不学则殆，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。
 在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。
 这里我们以 v1.0.26 为基础开始看源">
-<meta property="og:image" content="https://lihongxun945.github.io/blog/./images/vue-structure.png">
-<meta property="og:updated_time" content="2016-09-13T07:19:03.000Z">
+<meta property="og:image" content="https://lihongxun945.github.io/blog/blog/images/vue-structure.png">
+<meta property="og:updated_time" content="2016-09-13T07:30:40.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="vue 源码解析一">
 <meta name="twitter:description" content="最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰学而不思则罔，思而不学则殆，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。
 在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。
 这里我们以 v1.0.26 为基础开始看源">
-<meta name="twitter:image" content="https://lihongxun945.github.io/blog/./images/vue-structure.png">
+<meta name="twitter:image" content="https://lihongxun945.github.io/blog/blog/images/vue-structure.png">
   
     <link rel="alternate" href="/atom.xml" title="言川的博客" type="application/atom+xml">
   
@@ -60,9 +60,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lihongxun945.github.io/blog"></form>
@@ -97,7 +97,7 @@
 <p>在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。</p>
 <p>这里我们以 <code>v1.0.26</code> 为基础开始看源码，全部看完一遍以后，会继续看 <code>v2.0</code> 的源码，并比较其中的差异。建议看这篇博客的读者都自行clone源码并切换到 <code>v1.0.26</code> tag。</p>
 <h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>从入口文件 <code>/src/index.js</code> 入手，顺序捋一遍，vue的大概结构如下：</p>
-<p><img src="./images/vue-structure.png" alt="vue-structure"></p>
+<p><img src="/blog/images/vue-structure.png" alt="vue-structure"></p>
 <p>vue的源码结构分为 <code>Instance</code> 和 <code>Global</code> 两大块，下面我们分别粗略的看看这两个部分</p>
 <h2 id="Instance"><a href="#Instance" class="headerlink" title="Instance"></a>Instance</h2><p>其中 <code>Instance</code> 就是对 Vue 实例的定义，也就是定义了 <code>Vue</code> 这个类本身，我们通过 <code>new Vue</code> 来生成实例。</p>
 <p><code>Vue</code> 类的定义在 <code>instance</code> 文件夹下，主要包括两方面内容：</p>
@@ -135,7 +135,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://lihongxun945.github.io/blog/blog/2016/09/13/devide-into-vue-1/" data-id="cit0vggbm00002n6w68qxxltf" class="article-share-link">Partager</a>
+      <a data-url="https://lihongxun945.github.io/blog/blog/2016/09/13/devide-into-vue-1/" data-id="cit0vggbm00002n6w68qxxltf" class="article-share-link">Share</a>
       
       
     </footer>
@@ -146,7 +146,7 @@
   
   
     <a href="/blog/2016/08/05/about-this-blog/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Ancien</strong>
+      <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">关于本博客</div>
     </a>
   
@@ -169,7 +169,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
+    <h3 class="widget-title">Arkiv</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2016/09/">September 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2016/08/">August 2016</a></li></ul>
     </div>
@@ -179,7 +179,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Siste innlegg</h3>
     <div class="widget">
       <ul>
         
@@ -204,7 +204,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2016 言川<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
