@@ -179,6 +179,15 @@ if ((value = getBindAttr(el, attr)) === null) {
 }
 ```
 
+总结下 `props` 处理的流程
+
+1. 词法解析，把模板中的原始值做简单的处理，分理出 `value` 和 `filter`
+2. 对每一个 `prop` 创建一个 `Directive` 负责处理数据更新
+3. Directive 内部通过创建 `Watcher` 来实现对数据更新的监听
+
 ## 如何debug
 
 补充一下如何debug vue 的源码，参考 [guide - install](https://vuejs.org/guide/installation.html) 中 `Dev Build` 小节中的方法，自己clone并编译代码，然后在 chrome 开发者工具中按 `command + O` 打开 `vue.common.js`，就可以在其中下断点调试。
+
+
+Next：分析 Watcher 工作流程
