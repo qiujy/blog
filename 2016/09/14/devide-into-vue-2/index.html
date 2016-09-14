@@ -3,17 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>言川的博客</title>
+  <title>vue 源码解析二 - instance | 言川的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="言川的博客">
-<meta property="og:type" content="website">
-<meta property="og:title" content="言川的博客">
-<meta property="og:url" content="https://lihongxun945.github.io/blog/index.html">
+  <meta name="description" content="我们从 instance/vue.js 开始:
+12345678910111213141516function Vue (options) &amp;#123;  this._init(options)&amp;#125;// install internalsinitMixin(Vue)stateMixin(Vue)eventsMixin(Vue)lifecycleMixin(Vue)miscMixin(Vue">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue 源码解析二 - instance">
+<meta property="og:url" content="https://lihongxun945.github.io/blog/2016/09/14/devide-into-vue-2/index.html">
 <meta property="og:site_name" content="言川的博客">
-<meta property="og:description" content="言川的博客">
+<meta property="og:description" content="我们从 instance/vue.js 开始:
+12345678910111213141516function Vue (options) &amp;#123;  this._init(options)&amp;#125;// install internalsinitMixin(Vue)stateMixin(Vue)eventsMixin(Vue)lifecycleMixin(Vue)miscMixin(Vue">
+<meta property="og:updated_time" content="2016-09-14T08:25:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="言川的博客">
-<meta name="twitter:description" content="言川的博客">
+<meta name="twitter:title" content="vue 源码解析二 - instance">
+<meta name="twitter:description" content="我们从 instance/vue.js 开始:
+12345678910111213141516function Vue (options) &amp;#123;  this._init(options)&amp;#125;// install internalsinitMixin(Vue)stateMixin(Vue)eventsMixin(Vue)lifecycleMixin(Vue)miscMixin(Vue">
   
     <link rel="alternate" href="/atom.xml" title="言川的博客" type="application/atom+xml">
   
@@ -64,9 +68,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-devide-into-vue-2" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-devide-into-vue-2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/blog/2016/09/14/devide-into-vue-2/" class="article-date">
   <time datetime="2016-09-14T02:41:00.000Z" itemprop="datePublished">2016-09-14</time>
@@ -79,8 +81,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2016/09/14/devide-into-vue-2/">vue 源码解析二 - instance</a>
+    <h1 class="article-title" itemprop="name">
+      vue 源码解析二 - instance
     </h1>
   
 
@@ -161,136 +163,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-devide-into-vue-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2016/09/13/devide-into-vue-1/" class="article-date">
-  <time datetime="2016-09-13T02:41:00.000Z" itemprop="datePublished">2016-09-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2016/09/13/devide-into-vue-1/">vue 源码解析一 - 框架和文件结构</a>
-    </h1>
+    <a href="/blog/2016/09/13/devide-into-vue-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">vue 源码解析一 - 框架和文件结构</div>
+    </a>
   
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>最近一直在埋头写代码，两个开源项目基本占用了全部时间。子曰<code>学而不思则罔，思而不学则殆</code>，无论再忙还是要抽出时间来学习和思考，埋头写代码而不知思考是不会有太大进步的。</p>
-<p>在新博客上就以 vue 源码解析系列来开篇吧，因为是边看边写文章的顺序基本是按照自己看源码的顺序来的，效果可能比不上先完整看一遍再写（并不会现有一个对代码结构很透彻的理解再逐步解析每个模块）。</p>
-<p>这里我们以 <code>v1.0.26</code> 为基础开始看源码，全部看完一遍以后，会继续看 <code>v2.0</code> 的源码，并比较其中的差异。建议看这篇博客的读者都自行clone源码并切换到 <code>v1.0.26</code> tag。</p>
-<h1 id="基本结构"><a href="#基本结构" class="headerlink" title="基本结构"></a>基本结构</h1><p>从入口文件 <code>/src/index.js</code> 入手，顺序捋一遍，vue的大概结构如下：</p>
-<p><img src="/blog/images/vue-structure.png" alt="vue-structure"></p>
-<p>vue的源码结构分为 <code>Instance</code> 和 <code>Global</code> 两大块，下面我们分别粗略的看看这两个部分</p>
-<h2 id="Instance"><a href="#Instance" class="headerlink" title="Instance"></a>Instance</h2><p>其中 <code>Instance</code> 就是对 Vue 实例的定义，也就是定义了 <code>Vue</code> 这个类本身，我们通过 <code>new Vue</code> 来生成实例。</p>
-<p><code>Vue</code> 类的定义在 <code>instance</code> 文件夹下，主要包括两方面内容：</p>
-<ul>
-<li><p><code>internal</code> 文件夹下定义的是 <code>Vue</code> 内部的方法，内部方法全部以 <code>_</code> 开头(所以要避免使用 <code>_</code> 开头的方法和属性)</p>
-<ul>
-<li><code>init</code> 定义了一些初始化操作，比如对 <code>$parent</code> <code>$children</code> 的初始化，<code>$mount</code>, 调用 <code>events</code> 等其他初始化方法</li>
-<li><code>events</code> 处理 我们初始化的时候传入的<code>events</code> 和 <code>watch</code> 参数</li>
-<li><code>lifecircle</code> 实现了从初始化到销毁的整个生命周期</li>
-<li><code>state</code> 主要处理 <code>props</code> 和 <code>data</code>，定义了对他们的 <code>watcher</code> 来监听数据变动</li>
-</ul>
-</li>
-<li><p><code>api</code> 文件夹下定义的是实例的接口，是我们可以在实例上调用的方法，全部以 <code>$</code> 开头</p>
-<ul>
-<li><code>data</code> 定义了对数据的操作： <code>$get, $set, $watch, $delete</code>等</li>
-<li><code>dom</code> 定义了几个常用的dom操作： <code>$before, $after</code>等，还有最常用的 <code>$nextTick</code> 也定义在这里</li>
-<li><code>events</code> 定义了事件接口：<code>$on, $emit, $broadcast</code> 等</li>
-<li><code>lifecircle</code> 定义了和生命周期相关的接口：<code>$mount, $compile, $destroy</code><br>-</li>
-</ul>
-</li>
-</ul>
-<p>要注意的是，<code>internal</code> 和 <code>api</code> 中都涉及到了对 <code>data</code> 和 <code>events</code> 的处理，他们是有严格区别的，<code>internal</code> 下都是内部初始化用的，比如如何初始化用户传入的 <code>data</code> ，而<code>api</code> 下面都是提供实例接口的，<code>api</code> 下面定义的接口都不包含具体实现，具体的实现都是在 <code>internal</code> 中的。</p>
-<h2 id="Global"><a href="#Global" class="headerlink" title="Global"></a>Global</h2><p>Global 的入口文件是 <code>global-api.js</code>，定义了 <code>directives</code>, <code>filters</code>, <code>transition</code>, <code>parser</code> 等全局模块，定义了 <code>Vue</code> 上的静态属性</p>
-<ul>
-<li>directives 分两类：<ul>
-<li>elementDirectives 只有两个 <code>slot</code> 和 <code>partical</code></li>
-<li>public directives 包含了其余所有的，比如 <code>bind</code>, <code>for</code>, <code>if</code> 等</li>
-</ul>
-</li>
-</ul>
-<p><code>instance</code> 和 <code>global-api</code> 最终还依赖了 <code>compiler</code>, <code>observer</code>, <code>parser</code>, <code>utils</code> 等模块。</p>
-<p><code>global</code> 相关的我们留在 <code>instance</code> 后面再看。</p>
-<p>下一章，我们从 <code>instance</code> 的整个生命周期入手，来看看一个组件从初始化到销毁都经历了哪些步骤，每个步骤是怎么设计的，重点应该是 <code>数据监听</code> 和 <code>模板渲染</code> 两部分</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://lihongxun945.github.io/blog/blog/2016/09/13/devide-into-vue-1/" data-id="cit0vggbm00002n6w68qxxltf" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/vue/">vue</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
-
-
-  
-    <article id="post-about-this-blog" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/blog/2016/08/05/about-this-blog/" class="article-date">
-  <time datetime="2016-08-05T09:40:19.000Z" itemprop="datePublished">2016-08-05</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blog/2016/08/05/about-this-blog/">关于本博客</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="关于本博客"><a href="#关于本博客" class="headerlink" title="关于本博客"></a>关于本博客</h1><p>在CSDN上断断续续写了5年博客，发表了上百篇原创文章，涉及了<em>前端，算法，Java，安卓，Linux</em> 等各种领域。<br>一直想切换到github上，近期发生了一些不愉快的事情，机缘巧合下也正好把博客搬家到github上。<br>至于为什么在github上写博客，而不是在CSDN等博客网站上写，大约主要是如下原因：</p>
-<ul>
-<li>本人是github重度用户，所有能放在github上基本都不愿意放在别处</li>
-<li>github 上用markdown写起来更方便</li>
-<li>独立博客更自由，可以自定义域名，可以自己设计页面</li>
-<li>以前的博客写的很杂，希望换一个地方专心写一些比较高质量的技术博客</li>
-</ul>
-<p>此博客源码：<a href="https://github.com/lihongxun945/blog" target="_blank" rel="external">https://github.com/lihongxun945/blog</a><br>旧的博客地址: <a href="http://blog.csdn.net/lihongxun945?viewmode=contents" target="_blank" rel="external">http://blog.csdn.net/lihongxun945?viewmode=contents</a></p>
-<h1 id="关于作者-言川"><a href="#关于作者-言川" class="headerlink" title="关于作者@言川"></a>关于作者@言川</h1><p>前端工程师，开源爱好者。目前个人开源项目主要有：</p>
-<ul>
-<li>微信公众账号开发UI库 <a href="https://github.com/lihongxun945/jquery-weui" target="_blank" rel="external">jQuery WeUI</a></li>
-<li>正在开发的基于VUE的UI框架 <a href="https://github.com/lihongxun945/vum" target="_blank" rel="external">VUM</a></li>
-</ul>
-<p>另外还有一些公司的开源项目就不在这里列出。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://lihongxun945.github.io/blog/blog/2016/08/05/about-this-blog/" data-id="cirhk955f0001dx6ws1z7us68" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
 
 </section>
         
