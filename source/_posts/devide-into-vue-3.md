@@ -1,6 +1,6 @@
 ---
 title: vue 源码解析三 - Watcher
-date: 2016-09-13 10:41:00
+date: 2016-09-15 10:41:00
 tags: vue
 ---
 
@@ -78,36 +78,47 @@ export function defineReactive (obj, key, val) {
 
 这样我们就弄清楚了为什么 `props.xxx` 可以和 `vm.xxx(this.xxx)` 关联起来。
 
-既然已经关联起来了，下一步我们就看看当 我们执行 `this.xxx = x` 来赋值的时候，是如何触发 `props.xxx` 的更新的。
+也能清楚 `this.xxx = xxx` 是怎么工作的，其实 `this.xxx` 会调用上面的 `set` 方法，他会把一个闭包中的变量 `val` 修改掉，这样下次我们通过 `this.xxx` 取值的时候，就会取到新的 `val` 值。
 
-假设我们这样初始化了一个 vue 实例：
+有兴趣的童鞋可以在 `get` 和 `set` 方法中下断点，然后修改一下props的值来验证。
+
+到目前为止，我们清楚了 `props.xxx` 和 `this.xxx` 是如何关联的，下一步，我们就要弄清楚，从 `this.xxx = xxx` 是如何触发 DOM 的更新的。
+
+## 更新 DOM
+
+先看看上面 `defineReactive` 中省略的一行关键代码:
 
 ``` javascript
-const vm = new Vue({
-  props: {
-    xxx: {
-      default: 1
+get: function reactiveGetter() {
+  var value = getter ? getter.call(obj) : val;
+  if (Dep.target) {
+    dep.depend(); // 关键代码
+    if (childOb) {
+      childOb.dep.depend();
+    }
+    if (isArray(value)) {
+      for (var e, i = 0, l = value.length; i < l; i++) {
+        e = value[i];
+        e && e.__ob__ && e.__ob__.dep.depend();
+      }
     }
   }
-})
+  return value;
+},
 ```
 
-显然，编译 `props` 的时候，会在 `defineReactive` 方法中，定义一个 `vm.xxx`，并且是定义了 `getter` 和 `setter`, 我们看看 `set` 的定义：
+其中 `dep.depend()` 这行代码定义了对这个属性的 `依赖`，其中 `更新DOM` 就是一种依赖（另一种依赖就是更新 `children.props.xxx`）。他最终会把当前这个属性的 `watcher` 存到 `dep.subs` 中。具体过程有兴趣的可以断点跟踪一下，过程并不复杂，要注意其中 `Deo.target` 就是当前属性对应的 `watcher`。
 
-``` javascript
-set: function reactiveSetter (newVal) {
-  var value = getter ? getter.call(obj) : val
-  if (newVal === value) {
-    return
-  }
-  if (setter) {
-    setter.call(obj, newVal)
-  } else {
-    val = newVal
-  }
-  childOb = observe(newVal)
-  dep.notify()
-}
-```
+所以在 `set` 函数中，最后一行 `dep.notify()` 就会触发对应的 `依赖`，也就是对 DOM 的更新。
 
-其中 `dep.notify()` 会最终通知 `watcher` 来更新 `props.xxx`
+这里说一下大致的流程：
+
+1. `dep.notify()` 会触发对应的 `wachter.run()`
+2. `watcher.run()` 的时候会触发对应的 `directive._update()`
+3. 最终由对应的 `directive` 负责完成DOM更新，比如是一个 `textNode` 那么最终是由 `directives/public/text.js` 中的 `update` 方法完成更新的
+
+![vue-props-workflow](/blog/images/props-workflow.png)
+
+注意到这里了吗，前一章说过，对每一个 `prop` 都会创建一个 `directive`， `directive` 内部则创建了一个 `watcher` 来监听 prop 的更新，一旦监听到更新就会执行 `directive.update` 来更新 DOM。
+
+大致的流程就是这样的，当然实际上代码比这个复杂很多，这里只是说一个最简单的流程。

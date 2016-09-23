@@ -181,9 +181,11 @@ if ((value = getBindAttr(el, attr)) === null) {
 
 总结下 `props` 处理的流程
 
-1. 词法解析，把模板中的原始值做简单的处理，分理出 `value` 和 `filter`
-2. 对每一个 `prop` 创建一个 `Directive` 负责处理数据更新
-3. Directive 内部通过创建 `Watcher` 来实现对数据更新的监听
+1. *词法解析*，把模板中的原始值做简单的处理，分理出 `value` 和 `filter`
+2. *创建derctive*, 对每一个 `prop` 创建一个 `Directive` 负责处理数据更新
+3. *创建watcher*, Directive 内部通过创建 `Watcher` 来实现对数据更新的监听
+
+![vue-props-init](/blog/images/props-init.png)
 
 ## 如何debug
 
