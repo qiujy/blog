@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>vue 源码解析三 - Watcher | 言川的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="上一篇讲了对 props 的监听是通过创建 Directive 实现的，而 Directive 内部则创建了一个 Watcher。我们现在来看看 Wacher 是如何监听数据的更新的。
+如何关联 props.xxx 和 this.xxx在 watcher.js 中我们看不到任何使用 ES6 相关API来监听属性更新的，反而能看到这么一行代码：
+12345export default functio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue 源码解析三 - Watcher">
+<meta property="og:url" content="https://lihongxun945.github.io/blog/2016/09/15/devide-into-vue-3/index.html">
+<meta property="og:site_name" content="言川的博客">
+<meta property="og:description" content="上一篇讲了对 props 的监听是通过创建 Directive 实现的，而 Directive 内部则创建了一个 Watcher。我们现在来看看 Wacher 是如何监听数据的更新的。
+如何关联 props.xxx 和 this.xxx在 watcher.js 中我们看不到任何使用 ES6 相关API来监听属性更新的，反而能看到这么一行代码：
+12345export default functio">
+<meta property="og:image" content="https://lihongxun945.github.io/blog/blog/images/props-workflow.png">
+<meta property="og:updated_time" content="2016-09-23T08:43:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vue 源码解析三 - Watcher">
+<meta name="twitter:description" content="上一篇讲了对 props 的监听是通过创建 Directive 实现的，而 Directive 内部则创建了一个 Watcher。我们现在来看看 Wacher 是如何监听数据的更新的。
+如何关联 props.xxx 和 this.xxx在 watcher.js 中我们看不到任何使用 ES6 相关API来监听属性更新的，反而能看到这么一行代码：
+12345export default functio">
+<meta name="twitter:image" content="https://lihongxun945.github.io/blog/blog/images/props-workflow.png">
+  
+    <link rel="alternate" href="/atom.xml" title="言川的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/blog/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/blog/" id="logo">言川的博客</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/blog/">Home</a>
+        
+          <a class="main-nav-link" href="/blog/archives">Archives</a>
+        
+          <a class="main-nav-link" href="https://github.com/lihongxun945/blog">github</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Søk"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lihongxun945.github.io/blog"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-devide-into-vue-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/blog/2016/09/15/devide-into-vue-3/" class="article-date">
+  <time datetime="2016-09-15T02:41:00.000Z" itemprop="datePublished">2016-09-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      vue 源码解析三 - Watcher
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>上一篇讲了对 <code>props</code> 的监听是通过创建 <code>Directive</code> 实现的，而 <code>Directive</code> 内部则创建了一个 <code>Watcher</code>。我们现在来看看 <code>Wacher</code> 是如何监听数据的更新的。</p>
+<h2 id="如何关联-props-xxx-和-this-xxx"><a href="#如何关联-props-xxx-和-this-xxx" class="headerlink" title="如何关联 props.xxx 和 this.xxx"></a>如何关联 <code>props.xxx</code> 和 <code>this.xxx</code></h2><p>在 <code>watcher.js</code> 中我们看不到任何使用 ES6 相关API来监听属性更新的，反而能看到这么一行代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Watcher</span> (<span class="params">vm, expOrFn, cb, options</span>) </span>&#123;</div><div class="line">  <span class="comment">// ...</span></div><div class="line">  vm._watchers.push(<span class="keyword">this</span>) <span class="comment">// 这一行代码</span></div><div class="line">  <span class="comment">// ...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这行代码是在每次创建一个 <code>watcher</code> 实例后都会把这个实例放进 <code>vm._watchers</code> 中保存。这里的 <code>vm</code> 就是 <code>Vue</code> 的一个实例。</p>
+<p>那么显然，并不是每一个watcher去自己监听 vm 的数据更新，而是 <code>wachter</code> 通过这种方式把自己注册到 <code>vm</code> 上，当有数据更新的时候，由 <code>vm</code> 负责调用 <code>watcher</code> 来更新数据。</p>
+<p>接着上一篇，我们继续看 <code>compileProps</code> 方法，他最后返回的是另一个方法的结果:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> makePropsLinkFn(props)</div></pre></td></tr></table></figure>
+<p>最终调用了 <code>defineReactive</code> 方法:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">defineReactive(vm, prop.path, value)</div></pre></td></tr></table></figure>
+<p>这个方法中，会把前面定义的每一个 <code>prop</code> 都在 <code>vm</code> 对象上做一个 <code>reactive</code> 的同名 <code>prop</code>，因此我们才能把 <code>this.show = true</code> 和 <code>props.show</code> 关联起来。</p>
+<p>这里贴一下简化版的 <code>defineReactive</code> 方法实现，完整版请在 <code>observer/index.js</code> 中查看。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">defineReactive</span> (<span class="params">obj, key, val</span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> dep = <span class="keyword">new</span> Dep()</div><div class="line"></div><div class="line">  <span class="keyword">var</span> property = <span class="built_in">Object</span>.getOwnPropertyDescriptor(obj, key)</div><div class="line"></div><div class="line">  <span class="keyword">var</span> childOb = observe(val)</div><div class="line"></div><div class="line">  <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</div><div class="line">    enumerable: <span class="literal">true</span>,</div><div class="line">    configurable: <span class="literal">true</span>,</div><div class="line">    get: <span class="function"><span class="keyword">function</span> <span class="title">reactiveGetter</span> (<span class="params"></span>) </span>&#123;</div><div class="line">      <span class="keyword">var</span> value = getter ? getter.call(obj) : val</div><div class="line">      <span class="keyword">if</span> (Dep.target) &#123;</div><div class="line">        <span class="comment">// ...</span></div><div class="line">      &#125;</div><div class="line">      <span class="keyword">return</span> value</div><div class="line">    &#125;,</div><div class="line">    set: <span class="function"><span class="keyword">function</span> <span class="title">reactiveSetter</span> (<span class="params">newVal</span>) </span>&#123;</div><div class="line">      <span class="keyword">var</span> value = getter ? getter.call(obj) : val</div><div class="line">      <span class="keyword">if</span> (newVal === value) &#123;</div><div class="line">        <span class="keyword">return</span></div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (setter) &#123;</div><div class="line">        setter.call(obj, newVal)</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        val = newVal</div><div class="line">      &#125;</div><div class="line">      childOb = observe(newVal)</div><div class="line">      dep.notify()</div><div class="line">    &#125;</div><div class="line">  &#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意这里对闭包的应用，<code>getter</code> 和 <code>setter</code> 都是操作这个函数闭包中的 <code>val</code> 变量，这个变量的初始值其实就是我们初始化的时候传入的 <code>props</code> 中对应的值。</p>
+<p>这样我们就弄清楚了为什么 <code>props.xxx</code> 可以和 <code>vm.xxx(this.xxx)</code> 关联起来。</p>
+<p>也能清楚 <code>this.xxx = xxx</code> 是怎么工作的，其实 <code>this.xxx</code> 会调用上面的 <code>set</code> 方法，他会把一个闭包中的变量 <code>val</code> 修改掉，这样下次我们通过 <code>this.xxx</code> 取值的时候，就会取到新的 <code>val</code> 值。</p>
+<p>有兴趣的童鞋可以在 <code>get</code> 和 <code>set</code> 方法中下断点，然后修改一下props的值来验证。</p>
+<p>到目前为止，我们清楚了 <code>props.xxx</code> 和 <code>this.xxx</code> 是如何关联的，下一步，我们就要弄清楚，从 <code>this.xxx = xxx</code> 是如何触发 DOM 的更新的。</p>
+<h2 id="更新-DOM"><a href="#更新-DOM" class="headerlink" title="更新 DOM"></a>更新 DOM</h2><p>先看看上面 <code>defineReactive</code> 中省略的一行关键代码:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">get: <span class="function"><span class="keyword">function</span> <span class="title">reactiveGetter</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">var</span> value = getter ? getter.call(obj) : val;</div><div class="line">  <span class="keyword">if</span> (Dep.target) &#123;</div><div class="line">    dep.depend(); <span class="comment">// 关键代码</span></div><div class="line">    <span class="keyword">if</span> (childOb) &#123;</div><div class="line">      childOb.dep.depend();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (isArray(value)) &#123;</div><div class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> e, i = <span class="number">0</span>, l = value.length; i &lt; l; i++) &#123;</div><div class="line">        e = value[i];</div><div class="line">        e &amp;&amp; e.__ob__ &amp;&amp; e.__ob__.dep.depend();</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> value;</div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<p>其中 <code>dep.depend()</code> 这行代码定义了对这个属性的 <code>依赖</code>，其中 <code>更新DOM</code> 就是一种依赖（另一种依赖就是更新 <code>children.props.xxx</code>）。他最终会把当前这个属性的 <code>watcher</code> 存到 <code>dep.subs</code> 中。具体过程有兴趣的可以断点跟踪一下，过程并不复杂，要注意其中 <code>Deo.target</code> 就是当前属性对应的 <code>watcher</code>。</p>
+<p>所以在 <code>set</code> 函数中，最后一行 <code>dep.notify()</code> 就会触发对应的 <code>依赖</code>，也就是对 DOM 的更新。</p>
+<p>这里说一下大致的流程：</p>
+<ol>
+<li><code>dep.notify()</code> 会触发对应的 <code>wachter.run()</code></li>
+<li><code>watcher.run()</code> 的时候会触发对应的 <code>directive._update()</code></li>
+<li>最终由对应的 <code>directive</code> 负责完成DOM更新，比如是一个 <code>textNode</code> 那么最终是由 <code>directives/public/text.js</code> 中的 <code>update</code> 方法完成更新的</li>
+</ol>
+<p><img src="/blog/images/props-workflow.png" alt="vue-props-workflow"></p>
+<p>注意到这里了吗，前一章说过，对每一个 <code>prop</code> 都会创建一个 <code>directive</code>， <code>directive</code> 内部则创建了一个 <code>watcher</code> 来监听 prop 的更新，一旦监听到更新就会执行 <code>directive.update</code> 来更新 DOM。</p>
+<p>大致的流程就是这样的，当然实际上代码比这个复杂很多，这里只是说一个最简单的流程。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://lihongxun945.github.io/blog/blog/2016/09/15/devide-into-vue-3/" data-id="citfdxbik00051r6we8dn48hb" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/blog/tags/vue/">vue</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/blog/2016/09/20/curl/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          curl 模拟ajax请求
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blog/2016/09/14/devide-into-vue-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">vue 源码解析二 - instance</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/curl/">curl</a></li><li class="tag-list-item"><a class="tag-list-link" href="/blog/tags/vue/">vue</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/blog/tags/curl/" style="font-size: 10px;">curl</a> <a href="/blog/tags/vue/" style="font-size: 20px;">vue</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Arkiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2016/09/">September 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/blog/archives/2016/08/">August 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Siste innlegg</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/blog/2016/09/20/curl/">curl 模拟ajax请求</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2016/09/15/devide-into-vue-3/">vue 源码解析三 - Watcher</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2016/09/14/devide-into-vue-2/">vue 源码解析二 - instance</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2016/09/13/devide-into-vue-1/">vue 源码解析一 - 框架和文件结构</a>
+          </li>
+        
+          <li>
+            <a href="/blog/2016/08/05/about-this-blog/">关于本博客</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 言川<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/blog/" class="mobile-nav-link">Home</a>
+  
+    <a href="/blog/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="https://github.com/lihongxun945/blog" class="mobile-nav-link">github</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/blog/fancybox/jquery.fancybox.css">
+  <script src="/blog/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/blog/js/script.js"></script>
+
+  </div>
+</body>
+</html>
